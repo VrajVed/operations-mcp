@@ -66,13 +66,22 @@ def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
 
     # Determine the leaving variable (minimum ratio) pivot row index 
 
-    pivot_row_index = ratios.index(min(ratios))
+    min_ratio = min(ratios)
+    if min_ratio == float('inf'):
+        raise ValueError("The problem is unbounded (no positive pivot elements found in the pivot column).")
+
+    pivot_row_index = ratios.index(min_ratio)
     leaving_variable = tableau.basis[pivot_row_index]
 
     #update tableau at next iteration
 
     new_tableau = tableau.model_copy()
     new_tableau.iteration += 1
+
+    # Copy nested lists explicitly to prevent modifying the original tableau's data
+    new_tableau.matrix = [row.copy() for row in tableau.matrix]
+    new_tableau.basis = list(tableau.basis)
+    new_tableau.column_variables = list(tableau.column_variables)
 
     new_tableau.basis[pivot_row_index] = entering_variable
 
@@ -87,7 +96,7 @@ def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
 
     # MAKE OTHER ELEMENTS IN PIVOT COLUMN 0
 
-    for row in range(len(tableau.matrix)):
+    for row in range(1, len(tableau.matrix)):
         
         if row != pivot_row_index + 1:  # Skip pivot row because we did that
 
@@ -96,6 +105,16 @@ def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
             for col in range(len(tableau.matrix[0])):
 
                 new_tableau.matrix[row][col] -= factor * new_tableau.matrix[pivot_row_index + 1][col]
+
+    # Calculate the new objective value Z and store its negative in new_tableau.matrix[0][-1]
+    new_basis_coefficients = []
+    for basis_var in new_tableau.basis:
+        column_index = new_tableau.column_variables.index(basis_var)
+        basis_coefficient = new_tableau.matrix[0][column_index]
+        new_basis_coefficients.append(basis_coefficient)
+
+    new_obj_val = sum(new_basis_coefficients[i] * new_tableau.matrix[i + 1][-1] for i in range(len(new_tableau.basis)))
+    new_tableau.matrix[0][-1] = -new_obj_val
 
     return SimplexIteration(
         entering_variable=entering_variable,

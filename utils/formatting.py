@@ -28,6 +28,7 @@ def format_tableau(tableau: SimplexTableau) -> str:
     # 3. Compute Cj - Zj row
     row_Cj = tableau.matrix[0][:-1]
     row_Cj_minus_Zj = [cj - zj for cj, zj in zip(row_Cj, row_Zj)]
+    optimal = max(row_Cj_minus_Zj) <= 0
 
     # Column headers
     headers = ["Bv"] + tableau.column_variables + ["RHS"]
@@ -113,5 +114,12 @@ def format_tableau(tableau: SimplexTableau) -> str:
     # Cj-Zj Row
     table_lines.append(make_row(rows[-1]))
     table_lines.append(bottom_border)
+
+    if optimal:
+        table_lines.append("\nOptimal Solution Reached:")
+        for i, var in enumerate(tableau.basis):
+            val = tableau.matrix[i + 1][-1]
+            table_lines.append(f"  {var} = {val:g}")
+        table_lines.append(f"Optimal Objective Value (Z): {obj_val:g}")
     
     return "\n".join(table_lines)

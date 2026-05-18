@@ -7,7 +7,7 @@ from utils.formatting import format_tableau
 
 def main():
     # Load and parse the problem
-    with open("./tests/problem1.json", "r") as f:
+    with open("./tests/problem3.json", "r") as f:
         problem_data = json.load(f)
 
     problem = SimplexProblem(**problem_data)
