@@ -44,6 +44,27 @@ def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
 
         row_Cj_minus_Zj.append(cj - zj)
 
-    # Determine entering variable (most positive Cj - Zj)
+    # Determining the entering variable (most positive Cj - Zj) pivot column index
 
-    pivot_column = max(row_Cj_minus_Zj)
+    pivot_column_index = row_Cj_minus_Zj.index(max(row_Cj_minus_Zj))
+
+    entering_variable = tableau.column_variables[pivot_column_index]
+
+    # Determine the leaving variable using ratio
+
+    ratios = []
+
+    for i in range(1, len(tableau.matrix)):  # Skip objective row
+
+        if tableau.matrix[i][pivot_column_index] > 0: # this is not != because if negative or zero we dont use it so ignore negative :(
+            ratio = tableau.matrix[i][-1] / tableau.matrix[i][pivot_column_index]
+
+        else:
+
+            ratio = float('inf')
+        ratios.append(ratio)
+
+    # Determine the leaving variable (minimum ratio) pivot row index 
+
+    pivot_row_index = ratios.index(min(ratios))
+    leaving_variable = tableau.row_variables[pivot_row_index]
