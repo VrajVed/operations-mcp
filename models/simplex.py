@@ -4,17 +4,17 @@ from typing import Literal, Annotated
 
 VariableName = Annotated[str, StringConstraints(pattern=r"^[xsa][1-9][0-9]*$")]
 
+class SimplexConstraint(BaseModel):
+    coefficients: list[float]
+    operator: Literal["<=", ">=", "="]
+    rhs: float
+
 
 class SimplexProblem(BaseModel):
     objective: Literal["max", "min"]
     objective_coefficients: list[float]
     constraints: list[SimplexConstraint]
 
-
-class SimplexConstraint(BaseModel):
-    coefficients: list[float]
-    operator: Literal["<=", ">=", "="]
-    rhs: float
 
 
 class SimplexTableau(BaseModel):
