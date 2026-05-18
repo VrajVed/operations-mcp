@@ -1,5 +1,8 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Literal
+from pydantic import BaseModel, ConfigDict, StringConstraints
+from typing import Literal, Annotated
+
+
+VariableName = Annotated[str, StringConstraints(pattern=r"^[xsa][1-9][0-9]*$")]
 
 class SimplexConstraints(BaseModel):
     coefficients: list[float]
@@ -16,9 +19,9 @@ class SimplexProblem(BaseModel):
 
 class SimplexIteration(BaseModel):
     iteration: int
-    basis: list[str]
-    entering_variable: str
-    leaving_variable: str
+    basis: list[VariableName]
+    entering_variable: VariableName
+    leaving_variable: VariableName
     pivot_row: int
     pivot_column: int
 
