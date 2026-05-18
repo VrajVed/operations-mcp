@@ -1,0 +1,80 @@
+# THIS FILE IS AI GENERATED
+
+from models.simplex import SimplexTableau
+
+def format_tableau(tableau: SimplexTableau) -> str:
+    """
+    Constructs a beautiful Unicode console table representing a Simplex Tableau.
+    
+    Columns: Basis | column_variables | RHS
+    Rows: Z (Objective row), followed by basis rows (Constraints)
+    """
+    # Column headers
+    headers = ["Bv"] + tableau.column_variables + ["RHS"]
+    
+    # Format rows to strings
+    rows = []
+    
+    # Objective row (Z)
+    obj_row = ["Cj"] + [f"{val:g}" if isinstance(val, (int, float)) else str(val) for val in tableau.matrix[0]]
+    rows.append(obj_row)
+    
+    # Constraint rows
+    for i, basis_var in enumerate(tableau.basis):
+        matrix_row = tableau.matrix[i + 1]
+        constraint_row = [basis_var] + [f"{val:g}" if isinstance(val, (int, float)) else str(val) for val in matrix_row]
+        rows.append(constraint_row)
+        
+    # Determine the width of each column for proper padding and alignment
+    col_widths = []
+    for col_idx in range(len(headers)):
+        max_len = len(headers[col_idx])
+        for row in rows:
+            max_len = max(max_len, len(row[col_idx]))
+        col_widths.append(max_len + 4)  # 4 spaces of padding
+        
+    # Helper to generate borders
+    def make_border(left, middle, right, joint):
+        parts = [middle * width for width in col_widths]
+        return left + joint.join(parts) + right
+
+    # Helper to format a single row
+    def make_row(row_data):
+        parts = []
+        for col_idx, (val, width) in enumerate(zip(row_data, col_widths)):
+            # Center string fields (like headers, Basis, Z, s1, x1)
+            # Right-align numerical coefficients
+            is_header_or_basis = (
+                val in ["Basis", "RHS", "Z"] or 
+                val in tableau.basis or 
+                val in tableau.column_variables or
+                col_idx == 0
+            )
+            if is_header_or_basis:
+                parts.append(val.center(width))
+            else:
+                parts.append(val.rjust(width - 2) + "  ")
+        return "│" + "│".join(parts) + "│"
+
+    # Build the table with Unicode box-drawing characters
+    top_border = make_border("┌", "─", "┐", "┬")
+    header_row = make_row(headers)
+    sep_border = make_border("├", "─", "┤", "┼")
+    bottom_border = make_border("└", "─", "┘", "┴")
+    
+    table_lines = [
+        f"Iteration: {tableau.iteration}",
+        top_border,
+        make_row(rows[0]),  # Objective Row (Z)
+        sep_border,
+        header_row,         # Coefficient Row / Column Headers
+        sep_border
+    ]
+    
+    # Constraint Rows
+    for row in rows[1:]:
+        table_lines.append(make_row(row))
+        
+    table_lines.append(bottom_border)
+    
+    return "\n".join(table_lines)
