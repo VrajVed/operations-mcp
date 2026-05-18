@@ -67,7 +67,7 @@ def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
     # Determine the leaving variable (minimum ratio) pivot row index 
 
     pivot_row_index = ratios.index(min(ratios))
-    leaving_variable = tableau.column_variables[pivot_row_index]
+    leaving_variable = tableau.basis[pivot_row_index]
 
     #update tableau at next iteration
 
@@ -75,7 +75,6 @@ def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
     new_tableau.iteration += 1
 
     new_tableau.basis[pivot_row_index] = entering_variable
-    new_tableau.column_variables[pivot_row_index] = leaving_variable
 
     # MAKE PIVOT ELEMENT 1
 

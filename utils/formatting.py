@@ -7,8 +7,28 @@ def format_tableau(tableau: SimplexTableau) -> str:
     Constructs a beautiful Unicode console table representing a Simplex Tableau.
     
     Columns: Basis | column_variables | RHS
-    Rows: Z (Objective row), followed by basis rows (Constraints)
+    Rows: Z (Objective row), followed by basis rows (Constraints), Zj row, and Cj-Zj row
     """
+    # 1. Compute basis coefficients (following core/tableau.py)
+    basis_coefficients = []
+    for basis_var in tableau.basis:
+        column_index = tableau.column_variables.index(basis_var)
+        basis_coefficient = tableau.matrix[0][column_index]
+        basis_coefficients.append(basis_coefficient)
+
+    # 2. Compute Zj row
+    row_Zj = []
+    for every_column in range(len(tableau.column_variables)):
+        Zj = 0.0
+        for i, basis_var in enumerate(tableau.basis):
+            coefficient = tableau.matrix[i + 1][every_column]
+            Zj += basis_coefficients[i] * coefficient
+        row_Zj.append(Zj)
+
+    # 3. Compute Cj - Zj row
+    row_Cj = tableau.matrix[0][:-1]
+    row_Cj_minus_Zj = [cj - zj for cj, zj in zip(row_Cj, row_Zj)]
+
     # Column headers
     headers = ["Bv"] + tableau.column_variables + ["RHS"]
     
@@ -24,6 +44,15 @@ def format_tableau(tableau: SimplexTableau) -> str:
         matrix_row = tableau.matrix[i + 1]
         constraint_row = [basis_var] + [f"{val:g}" if isinstance(val, (int, float)) else str(val) for val in matrix_row]
         rows.append(constraint_row)
+
+    # Zj row
+    obj_val = -tableau.matrix[0][-1]
+    zj_row = ["Zj"] + [f"{val:g}" for val in row_Zj] + [f"{obj_val:g}"]
+    rows.append(zj_row)
+
+    # Cj-Zj row
+    cj_zj_row = ["Cj-Zj"] + [f"{val:g}" for val in row_Cj_minus_Zj] + [""]
+    rows.append(cj_zj_row)
         
     # Determine the width of each column for proper padding and alignment
     col_widths = []
@@ -42,10 +71,10 @@ def format_tableau(tableau: SimplexTableau) -> str:
     def make_row(row_data):
         parts = []
         for col_idx, (val, width) in enumerate(zip(row_data, col_widths)):
-            # Center string fields (like headers, Basis, Z, s1, x1)
+            # Center string fields (like headers, Basis, Z, s1, x1, Zj, Cj-Zj)
             # Right-align numerical coefficients
             is_header_or_basis = (
-                val in ["Basis", "RHS", "Z"] or 
+                val in ["Basis", "RHS", "Z", "Zj", "Cj-Zj"] or 
                 val in tableau.basis or 
                 val in tableau.column_variables or
                 col_idx == 0
@@ -71,10 +100,18 @@ def format_tableau(tableau: SimplexTableau) -> str:
         sep_border
     ]
     
-    # Constraint Rows
-    for row in rows[1:]:
+    # Constraint Rows (rows[1] to rows[1 + len(tableau.basis)])
+    for row in rows[1:-2]:
         table_lines.append(make_row(row))
         
+    table_lines.append(sep_border)
+
+    # Zj Row
+    table_lines.append(make_row(rows[-2]))
+    table_lines.append(sep_border)
+
+    # Cj-Zj Row
+    table_lines.append(make_row(rows[-1]))
     table_lines.append(bottom_border)
     
     return "\n".join(table_lines)
