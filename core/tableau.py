@@ -76,3 +76,32 @@ def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
 
     new_tableau.basis[pivot_row_index] = entering_variable
     new_tableau.column_variables[pivot_row_index] = leaving_variable
+
+    # MAKE PIVOT ELEMENT 1
+
+    pivot_element = tableau.matrix[pivot_row_index + 1][pivot_column_index]
+
+    # divide all elements in pivot row by pivot element to make it 1
+    for col in range(len(tableau.matrix[0])):
+
+        new_tableau.matrix[pivot_row_index + 1][col] /= pivot_element
+
+    # MAKE OTHER ELEMENTS IN PIVOT COLUMN 0
+
+    for row in range(len(tableau.matrix)):
+        
+        if row != pivot_row_index + 1:  # Skip pivot row because we did that
+
+            factor = tableau.matrix[row][pivot_column_index]
+
+            for col in range(len(tableau.matrix[0])):
+
+                new_tableau.matrix[row][col] -= factor * new_tableau.matrix[pivot_row_index + 1][col]
+
+    return SimplexIteration(
+        entering_variable=entering_variable,
+        leaving_variable=leaving_variable,
+        pivot_row=pivot_row_index,
+        pivot_column=pivot_column_index,
+        tableau=new_tableau
+    )   
