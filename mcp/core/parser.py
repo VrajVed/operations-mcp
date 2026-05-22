@@ -1,4 +1,4 @@
-from models.simplex import SimplexProblem, SimplexTableau
+from mcp.models.simplex import SimplexProblem, SimplexTableau
 
 
 

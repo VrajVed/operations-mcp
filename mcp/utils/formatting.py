@@ -1,6 +1,6 @@
 # THIS FILE IS AI GENERATED
 
-from models.simplex import SimplexTableau
+from mcp.models.simplex import SimplexTableau
 
 def format_tableau(tableau: SimplexTableau) -> str:
     """

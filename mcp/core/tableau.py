@@ -1,6 +1,6 @@
 
 
-from models.simplex import SimplexIteration, SimplexTableau
+from mcp.models.simplex import SimplexIteration, SimplexTableau
 
 
 def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:

@@ -1,9 +1,9 @@
 import json
 
-from core.parser import parse_simplex
-from models.simplex import SimplexProblem
-from core.tableau import solve_simplex_tableau
-from utils.formatting import format_tableau
+from mcp.core.parser import parse_simplex
+from mcp.models.simplex import SimplexProblem
+from mcp.core.tableau import solve_simplex_tableau
+from mcp.utils.formatting import format_tableau
 
 def main():
     # Load and parse the problem
