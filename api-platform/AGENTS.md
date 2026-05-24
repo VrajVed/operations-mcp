@@ -41,7 +41,7 @@ Every change must follow these four rules. No exceptions.
 
 **Operations MCP Platform** — An API-first infrastructure platform for optimization algorithms (Linear Programming, Simplex, etc.) exposed through MCP-compatible interfaces.
 
-- **Current backend**: Express.js (`index.js`, port 8080) with hardcoded API key auth
+- **Current backend**: Express.js (`index.js`, port 8080) with Clerk authentication, SQLite persistence, and Razorpay subscription billing
 - **Target backend**: Python / FastAPI / Pydantic / NumPy (future — do not implement without explicit approval)
 - **Frontend target**: Dark-mode first, terminal-inspired, developer-centric, data-dense
 - **Product spec source of truth**: `operations-mcp.md` (read before any product decisions)
@@ -71,9 +71,19 @@ api-platform/
 ```
 
 - **Entrypoint**: `node index.js` → `http://localhost:8080`
-- **Only active endpoint**: `GET /api?apiKey=...` — returns `{ message: 'Hello from the API!' }`
-- No build system, no test runner, no linter, no CI configured.
-- Backend is intentionally primitive right now; the philosophy doc defines the target stack.
+- **Active endpoints**:
+  - `GET /api?apiKey=...` — Solver API (returns `{ message: 'Hello from the API!' }`)
+  - `POST /v1/keys` — Create API key (requires subscription for non-free keys)
+  - `GET /v1/keys` — List user's API keys
+  - `DELETE /v1/keys/:id` — Revoke an API key
+  - `GET /v1/plans` — List subscription plans
+  - `POST /v1/subscriptions` — Create Razorpay subscription
+  - `GET /v1/subscriptions/status` — Get subscription status
+  - `POST /v1/webhooks/clerk` — Clerk user.created webhook (auto-creates free key)
+  - `POST /v1/webhooks/razorpay` — Razorpay payment webhooks
+- Database: SQLite (persistent, file-based)
+- Auth: Clerk (handles signup, login, sessions, JWTs)
+- Billing: Razorpay (test mode for development)
 
 ---
 
@@ -129,8 +139,8 @@ When building the frontend (refer to `frontend-god` skill):
 
 - Current backend is Express + vanilla JS. Keep changes minimal.
 - **Do not migrate to Python/FastAPI without explicit user approval** — this is documented future scope in `operations-mcp.md`.
-- API keys are MD5-hashed in-memory (current implementation); this is prototype-level security.
-- Razorpay payment integration is explicitly marked as **future scope** — do not implement.
+- API keys are MD5-hashed and stored in SQLite (persistent storage).
+- Razorpay payment integration is active (test mode). Use test card `5267 3181 8797 5449` for development.
 
 ---
 
@@ -166,8 +176,16 @@ Before writing code, confirm:
 
 ## Important Constraints
 
-- **No build toolchain exists yet.** Everything is manual. Don't assume webpack, vite, jest, etc. are configured.
-- **No tests configured.** `npm test` exits with an error by design.
-- **Payment integration (Razorpay) is future scope.** Do not implement.
-- **Python/FastAPI backend migration is future scope.** Do not implement.
+- **Build toolchain exists for frontend only** (`client/` uses Vite + TypeScript + Tailwind).
+- **No tests configured yet.** `npm test` exits with an error by design.
+- **Python/FastAPI backend migration is future scope.** Do not implement without explicit approval.
 - **Design-md files are static reference material.** They are not maintained by this repo; treat them as read-only inspiration.
+
+### Authentication & Payments (New)
+- Clerk handles all authentication (signup, login, sessions, JWTs). Do not implement custom auth.
+- Razorpay test keys used in development (`rzp_test_...`).
+- 1 free API key per user (auto-created on Clerk `user.created` webhook).
+- Free key: 2 requests/day, resets at user's local midnight (via `X-Timezone` header).
+- Additional keys require active Razorpay subscription.
+- Webhook endpoints: `POST /v1/webhooks/clerk`, `POST /v1/webhooks/razorpay`.
+- SQLite database is persistent (`database.sqlite`). Never use in-memory storage for user data.

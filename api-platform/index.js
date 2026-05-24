@@ -1,72 +1,47 @@
+require('dotenv').config();
+
 const express = require('express');
+const { clerkMiddleware } = require('@clerk/express');
+const { initSchema, seedPlans } = require('./db/database');
+
+const solverRouter = require('./routes/solver');
+const keysRouter = require('./routes/keys');
+const subscriptionsRouter = require('./routes/subscriptions');
+const webhooksRouter = require('./routes/webhooks');
 
 const app = express();
 
-const customers = {
+// Initialize database
+initSchema();
+seedPlans();
 
-    customerId: {
-        apiKey: '1234567890abcdef',
-        active: true,
-        itemIds: 'itemid',
-        calls: 0
-    },
-}
+// Middleware
+app.use(clerkMiddleware());
 
-const apiKeys = {
-    // apiKey: customer
-    '1234567890abcdef': 'customer1'
-};
+// Webhooks need raw body for signature verification
+app.use('/v1/webhooks', express.raw({ type: 'application/json' }));
 
+// Regular JSON parsing for other routes
+app.use(express.json());
 
-function generateApiKey() {
-    const {randomBytes, hash} = require('crypto');
-    const apiKey = randomBytes(16).toString('hex');
-    const hashedAPIKey = hashAPIKey(apiKey);
+// Routes
+app.use(solverRouter);
+app.use('/v1/keys', keysRouter);
+app.use('/v1', subscriptionsRouter);
+app.use('/v1/webhooks', webhooksRouter);
 
-    if (apiKeys[hashedAPIKey]) {
-        return generateApiKey();
-    } else {
-        return {hashedAPIKey, apiKey};
-    }
-}
-
-
-function hashAPIKey(apiKey) {
-    const {createHash} = require('crypto');
-    return createHash('md5').update(apiKey).digest('hex');
-
-    return hashedAPIKey;
-}
-
-
-app.get('/api', (req, res) => {
-
-    const apiKey = req.query.apiKey;
-
-    if (!apiKey) {
-        return res.status(400).send({ error: 'API key is required' });
-    }
-
-    const hashedAPIKey = hashAPIKey(apiKey);
-
-    const customerId = apiKeys[hashedAPIKey];
-
-    if (!customerId) {
-        return res.status(401).send({ error: 'Invalid API key' });
-    }   
-
-    const customer = customers[customerId];
-    
-    if (!customer.active) {
-        return res.status(403).send({ error: 'API key is inactive' });
-    }
-
-
-    
-  res.send({ message: 'Hello from the API!' });
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
-app.listen(8080, () => {
-  console.log('Server is running on http://localhost:8080');
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

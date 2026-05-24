@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.7",
+    "@clerk/clerk-react": "^5.61.7",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.16.0",
     "react": "^19.2.6",

@@ -1,18 +1,20 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth, UserButton } from '@clerk/clerk-react'
 import { Menu, X, Cpu } from 'lucide-react'
 import { useState } from 'react'
 import Button from './Button'
 
 const navLinks = [
   { to: '/', label: 'Home' },
-  { to: '/playground', label: 'Playground' },
+  { to: '/pricing', label: 'Pricing' },
   { to: '/dashboard', label: 'Dashboard' },
-  { to: '/docs', label: 'Docs' },
+  { to: '/playground', label: 'Playground' },
 ]
 
 export default function Navbar() {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { isSignedIn } = useAuth()
 
   return (
     <nav className="sticky top-0 z-50 border-b border-hairline bg-canvas/95 backdrop-blur-sm">
@@ -39,8 +41,25 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm">Sign In</Button>
-          <Button variant="primary" size="sm">Get Started</Button>
+          {isSignedIn ? (
+            <UserButton 
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: 'w-8 h-8 rounded-full',
+                }
+              }}
+            />
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Sign In</Button>
+              </Link>
+              <Link to="/signup">
+                <Button variant="primary" size="sm">Get Started</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -69,8 +88,20 @@ export default function Navbar() {
             </Link>
           ))}
           <div className="flex gap-3 pt-2 border-t border-hairline">
-            <Button variant="ghost" size="sm" className="flex-1">Sign In</Button>
-            <Button variant="primary" size="sm" className="flex-1">Get Started</Button>
+            {isSignedIn ? (
+              <div className="flex items-center gap-2 py-2">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="flex-1" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full">Sign In</Button>
+                </Link>
+                <Link to="/signup" className="flex-1" onClick={() => setMobileOpen(false)}>
+                  <Button variant="primary" size="sm" className="w-full">Get Started</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -113,16 +113,16 @@ export default function Landing() {
             Start Optimizing
           </h2>
           <p className="text-ink-muted max-w-md mx-auto mb-8">
-            No sign-up needed. Jump into the Playground or generate your first API key.
+            Sign up to get your free API key with 2 requests per day. Subscribe to unlock unlimited access.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link to="/playground">
-              <Button variant="primary" size="lg">Launch Playground</Button>
-            </Link>
-            <Link to="/dashboard">
-              <Button variant="secondary" size="lg">Get API Key</Button>
-            </Link>
-          </div>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link to="/signup">
+                <Button variant="primary" size="lg">Get Started Free</Button>
+              </Link>
+              <Link to="/pricing">
+                <Button variant="secondary" size="lg">View Pricing</Button>
+              </Link>
+            </div>
         </div>
       </section>
 

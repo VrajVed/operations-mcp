@@ -11,6 +11,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "express": "^5.2.1"
+    "@clerk/express": "^2.1.21",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "razorpay": "^2.9.6",
+    "sqlite3": "^6.0.1",
+    "uuid": "^14.0.0"
   }
 }
