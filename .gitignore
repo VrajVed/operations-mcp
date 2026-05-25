@@ -13,5 +13,6 @@ __pycache__/
 .pytest_cache/
 
 node_modules/
+design-md/
 database.sqlite
 .env
