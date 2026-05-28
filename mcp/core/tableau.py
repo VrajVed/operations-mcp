@@ -1,9 +1,10 @@
 
 
 from mcp.models.simplex import SimplexIteration, SimplexTableau
+from mcp.core.pivot import apply_pivot_operation
 
 
-def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
+def solve_simplex_tableau(tableau: SimplexTableau) -> SimplexIteration:
     
 
     basis_coefficients = []
@@ -73,48 +74,21 @@ def solve_simplex_tableau( tableau: SimplexTableau) -> SimplexIteration:
     pivot_row_index = ratios.index(min_ratio)
     leaving_variable = tableau.basis[pivot_row_index]
 
-    #update tableau at next iteration
+    # Prepare next iteration tableau using shared pivot operation
+    new_matrix, new_basis = apply_pivot_operation(
+        matrix=tableau.matrix,
+        basis=tableau.basis,
+        column_variables=tableau.column_variables,
+        pivot_row_index=pivot_row_index,
+        pivot_col_index=pivot_column_index,
+        entering_variable=entering_variable,
+    )
 
     new_tableau = tableau.model_copy()
     new_tableau.iteration += 1
-
-    # Copy nested lists explicitly to prevent modifying the original tableau's data
-    new_tableau.matrix = [row.copy() for row in tableau.matrix]
-    new_tableau.basis = list(tableau.basis)
+    new_tableau.matrix = new_matrix
+    new_tableau.basis = new_basis
     new_tableau.column_variables = list(tableau.column_variables)
-
-    new_tableau.basis[pivot_row_index] = entering_variable
-
-    # MAKE PIVOT ELEMENT 1
-
-    pivot_element = tableau.matrix[pivot_row_index + 1][pivot_column_index]
-
-    # divide all elements in pivot row by pivot element to make it 1
-    for col in range(len(tableau.matrix[0])):
-
-        new_tableau.matrix[pivot_row_index + 1][col] /= pivot_element
-
-    # MAKE OTHER ELEMENTS IN PIVOT COLUMN 0
-
-    for row in range(1, len(tableau.matrix)):
-        
-        if row != pivot_row_index + 1:  # Skip pivot row because we did that
-
-            factor = tableau.matrix[row][pivot_column_index]
-
-            for col in range(len(tableau.matrix[0])):
-
-                new_tableau.matrix[row][col] -= factor * new_tableau.matrix[pivot_row_index + 1][col]
-
-    # Calculate the new objective value Z and store its negative in new_tableau.matrix[0][-1]
-    new_basis_coefficients = []
-    for basis_var in new_tableau.basis:
-        column_index = new_tableau.column_variables.index(basis_var)
-        basis_coefficient = new_tableau.matrix[0][column_index]
-        new_basis_coefficients.append(basis_coefficient)
-
-    new_obj_val = sum(new_basis_coefficients[i] * new_tableau.matrix[i + 1][-1] for i in range(len(new_tableau.basis)))
-    new_tableau.matrix[0][-1] = -new_obj_val
 
     return SimplexIteration(
         entering_variable=entering_variable,
