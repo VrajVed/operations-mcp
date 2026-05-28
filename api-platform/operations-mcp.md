@@ -6,7 +6,7 @@ Operations MCP Platform is an infrastructure-first platform for computational re
 
 The goal is to create a developer-focused ecosystem where mathematical optimization, operations research, and algorithmic tooling become accessible through structured AI-native interfaces.
 
-Instead of building another calculator website, the platform treats algorithms as composable computational services.
+Instead of building another calculator website, the platform treats algorithms as composable com@putational services.
 
 Users should be able to:
 
