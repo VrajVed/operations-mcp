@@ -7,7 +7,7 @@ from mcp.utils.formatting import format_tableau
 
 def main():
     # Load and parse the problem
-    with open("./tests/problem4.json", "r") as f:
+    with open("./mcp/tests/problem6.json", "r") as f:
         problem_data = json.load(f)
 
     problem = SimplexProblem(**problem_data)

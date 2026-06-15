@@ -1,0 +1,16 @@
+{
+  "objective": "max",
+  "objective_coefficients": [-2, -1],
+  "constraints": [
+    {
+      "coefficients": [1, 1],
+      "operator": ">=",
+      "rhs": 4
+    },
+    {
+      "coefficients": [1, 2],
+      "operator": ">=",
+      "rhs": 6
+    }
+  ]
+}

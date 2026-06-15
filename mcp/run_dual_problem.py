@@ -19,7 +19,7 @@ from mcp.utils.dual_formatting import format_dual_tableau
 
 def main():
     # Load and parse the problem
-    with open("./mcp/tests/problem4.json", "r") as f:
+    with open("./mcp/tests/problem6.json", "r") as f:
         problem_data = json.load(f)
 
     problem = SimplexProblem(**problem_data)
