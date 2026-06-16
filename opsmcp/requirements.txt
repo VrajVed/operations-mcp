@@ -1,0 +1,16 @@
+# OpsMCP Compute Layer Dependencies
+
+# MCP SDK for exposing solvers to AI clients
+mcp==1.27.2
+
+# Schema validation and data models
+pydantic==2.13.4
+
+# Test framework
+pytest==9.0.3
+
+# ASGI server for SSE transport
+uvicorn==0.49.0
+
+# Web framework for SSE transport
+starlette==1.3.1

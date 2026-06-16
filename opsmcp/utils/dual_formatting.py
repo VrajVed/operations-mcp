@@ -1,15 +1,15 @@
 # THIS FILE IS AI GENERATED
 
-from mcp.models.simplex import SimplexTableau
+from opsmcp.models.dual_simplex import DualSimplexTableau
 
-def format_tableau(tableau: SimplexTableau) -> str:
+def format_dual_tableau(tableau: DualSimplexTableau) -> str:
     """
-    Constructs a beautiful Unicode console table representing a Simplex Tableau.
+    Constructs a beautiful Unicode console table representing a Dual Simplex Tableau.
     
     Columns: Basis | column_variables | RHS
     Rows: Z (Objective row), followed by basis rows (Constraints), Zj row, and Cj-Zj row
     """
-    # 1. Compute basis coefficients (following core/tableau.py)
+    # 1. Compute basis coefficients (following core/dual_simplex.py)
     basis_coefficients = []
     for basis_var in tableau.basis:
         column_index = tableau.column_variables.index(basis_var)
@@ -28,7 +28,10 @@ def format_tableau(tableau: SimplexTableau) -> str:
     # 3. Compute Cj - Zj row
     row_Cj = tableau.matrix[0][:-1]
     row_Cj_minus_Zj = [cj - zj for cj, zj in zip(row_Cj, row_Zj)]
-    optimal = max(row_Cj_minus_Zj) <= 0
+    
+    # Check for dual simplex optimality: all Cj-Zj <= 0 AND all RHS >= 0
+    rhs_values = [tableau.matrix[i][-1] for i in range(1, len(tableau.matrix))]
+    optimal = all(c <= 0 for c in row_Cj_minus_Zj) and all(r >= 0 for r in rhs_values)
 
     # Column headers
     headers = ["Bv"] + tableau.column_variables + ["RHS"]

@@ -2,7 +2,7 @@
 Example runner for the Dual Simplex algorithm.
 
 Usage:
-    /path/to/venv/bin/python mcp/run_dual_problem.py
+    /path/to/venv/bin/python opsmcp/run_dual_problem.py
 
 This demonstrates the full dual simplex solve trace for problem4.json:
     min 2x1 + 3x2
@@ -12,14 +12,14 @@ This demonstrates the full dual simplex solve trace for problem4.json:
 
 import json
 
-from mcp.models.simplex import SimplexProblem
-from mcp.core.dual_simplex import solve_dual_simplex
-from mcp.utils.dual_formatting import format_dual_tableau
+from opsmcp.models.simplex import SimplexProblem
+from opsmcp.core.dual_simplex import solve_dual_simplex
+from opsmcp.utils.dual_formatting import format_dual_tableau
 
 
 def main():
     # Load and parse the problem
-    with open("./mcp/tests/problem6.json", "r") as f:
+    with open("./opsmcp/tests/problem6.json", "r") as f:
         problem_data = json.load(f)
 
     problem = SimplexProblem(**problem_data)

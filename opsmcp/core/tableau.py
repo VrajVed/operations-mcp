@@ -8,9 +8,9 @@ input tableau is never mutated.
 
 from typing import List, Literal
 
-from mcp.models.simplex import SimplexIteration, SimplexProblem, SimplexTableau
-from mcp.core.parser import parse_simplex
-from mcp.core.pivot import apply_pivot_operation
+from opsmcp.models.simplex import SimplexIteration, SimplexProblem, SimplexTableau
+from opsmcp.core.parser import parse_simplex
+from opsmcp.core.pivot import apply_pivot_operation
 
 
 # ---------------------------------------------------------------------------

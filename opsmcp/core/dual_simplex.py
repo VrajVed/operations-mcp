@@ -25,13 +25,13 @@ Algorithm Overview:
 
 from typing import List, Literal
 
-from mcp.models.simplex import SimplexProblem
-from mcp.models.dual_simplex import (
+from opsmcp.models.simplex import SimplexProblem
+from opsmcp.models.dual_simplex import (
     DualSimplexTableau,
     DualSimplexIteration,
     VariableName,
 )
-from mcp.core.pivot import apply_pivot_operation
+from opsmcp.core.pivot import apply_pivot_operation
 
 
 # ---------------------------------------------------------------------------

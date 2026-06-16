@@ -2,8 +2,8 @@ import pytest
 import json
 import copy
 
-from mcp.models.simplex import SimplexProblem, SimplexConstraint
-from mcp.core.dual_simplex import (
+from opsmcp.models.simplex import SimplexProblem, SimplexConstraint
+from opsmcp.core.dual_simplex import (
     parse_dual_simplex_problem,
     solve_dual_simplex_iteration,
     solve_dual_simplex,
@@ -13,7 +13,7 @@ from mcp.core.dual_simplex import (
     _select_pivot_column,
     InfeasibleProblemError,
 )
-from mcp.models.dual_simplex import DualSimplexTableau
+from opsmcp.models.dual_simplex import DualSimplexTableau
 
 
 # ---------------------------------------------------------------------------
@@ -467,7 +467,7 @@ def test_select_pivot_column_infeasible():
 
 def test_dual_simplex_from_json():
     """Load problem4.json and solve with dual simplex."""
-    with open("mcp/tests/problem4.json", "r") as f:
+    with open("opsmcp/tests/problem4.json", "r") as f:
         problem_data = json.load(f)
 
     problem = SimplexProblem(**problem_data)

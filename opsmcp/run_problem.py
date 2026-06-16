@@ -1,13 +1,13 @@
 import json
 
-from mcp.core.parser import parse_simplex
-from mcp.models.simplex import SimplexProblem
-from mcp.core.tableau import solve_simplex_tableau
-from mcp.utils.formatting import format_tableau
+from opsmcp.core.parser import parse_simplex
+from opsmcp.models.simplex import SimplexProblem
+from opsmcp.core.tableau import solve_simplex_tableau
+from opsmcp.utils.formatting import format_tableau
 
 def main():
     # Load and parse the problem
-    with open("./mcp/tests/problem6.json", "r") as f:
+    with open("./opsmcp/tests/problem6.json", "r") as f:
         problem_data = json.load(f)
 
     problem = SimplexProblem(**problem_data)

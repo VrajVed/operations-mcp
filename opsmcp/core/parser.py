@@ -4,7 +4,7 @@ Primal Simplex Parser
 Builds the initial simplex tableau for the primal simplex algorithm.
 """
 
-from mcp.models.simplex import SimplexProblem, SimplexTableau
+from opsmcp.models.simplex import SimplexProblem, SimplexTableau
 
 
 def parse_simplex(problem: SimplexProblem) -> SimplexTableau:

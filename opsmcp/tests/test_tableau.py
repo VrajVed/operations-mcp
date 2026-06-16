@@ -1,7 +1,7 @@
 import pytest
-from mcp.core.parser import parse_simplex
-from mcp.models.simplex import SimplexProblem, SimplexConstraint
-from mcp.core.tableau import solve_simplex_tableau
+from opsmcp.core.parser import parse_simplex
+from opsmcp.models.simplex import SimplexProblem, SimplexConstraint
+from opsmcp.core.tableau import solve_simplex_tableau
 
 def test_solve_problem3():
     # problem3.json:
