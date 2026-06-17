@@ -1,14 +1,18 @@
 import { createHash, randomBytes } from 'crypto';
 import { getApiKeyByHash } from '../models/apiKeyModel.js';
 
+const KEY_PREFIX = 'opsmcp-';
+const KEY_BYTES = 32; // 256 bits -> 64 hex chars after prefix
+
 export function hashApiKey(apiKey: string) {
-  return createHash('md5').update(apiKey).digest('hex');
+  return createHash('sha256').update(apiKey).digest('hex');
 }
 
 export function generateApiKey() {
-  const apiKey = randomBytes(16).toString('hex');
+  const randomPart = randomBytes(KEY_BYTES).toString('hex');
+  const apiKey = `${KEY_PREFIX}${randomPart}`;
   const hashedAPIKey = hashApiKey(apiKey);
-  const mask = 'sk_live_...' + apiKey.slice(-4);
+  const mask = `${KEY_PREFIX}...${randomPart.slice(-4)}`;
   return { apiKey, hashedAPIKey, mask };
 }
 

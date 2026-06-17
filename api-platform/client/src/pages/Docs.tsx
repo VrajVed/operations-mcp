@@ -76,7 +76,7 @@ export default function Docs() {
             </p>
             <CodeBlock
               code={`curl -X POST https://api.opsmcp.dev/v1/simplex/solve \\
-  -H "Authorization: Bearer sk_live_..." \\
+  -H "Authorization: Bearer opsmcp-..." \\
   -H "Content-Type: application/json" \\
   -d '{"objective": "max", "objective_coefficients": [3, 2], "constraints": [...]}'`}
               language="bash"

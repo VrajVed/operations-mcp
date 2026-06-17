@@ -297,7 +297,7 @@ export default function Dashboard() {
       <Card>
         <h2 className="text-sm font-semibold text-ink mb-4">Quick Start</h2>
         <CodeBlock
-          code={`curl -X GET http://localhost:8080/api \\\n  -H "x-api-key: sk_live_..." \\\n  -H "X-Timezone: Asia/Kolkata"`}
+          code={`curl -X GET http://localhost:8080/api \\\n  -H "x-api-key: opsmcp-..." \\\n  -H "X-Timezone: Asia/Kolkata"`}
           language="bash"
         />
       </Card>

@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { SignUp, SignIn, RedirectToSignIn, useAuth } from '@clerk/clerk-react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { SignUp, SignIn, useAuth } from '@clerk/clerk-react'
 import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
@@ -17,7 +17,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
   
   if (!isSignedIn) {
-    return <RedirectToSignIn />
+    return <Navigate to="/login" replace />
   }
   
   return <>{children}</>
