@@ -36,5 +36,5 @@ class SimplexIteration(BaseModel):
     pivot_row: int | None = None
     pivot_column: int | None = None
     tableau: SimplexTableau
-    status: Literal["optimal", "unbounded", "continue"]
+    status: Literal["optimal", "unbounded", "infeasible", "continue"]
 

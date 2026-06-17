@@ -41,15 +41,15 @@ Build a working MCP server that exposes the existing Python solvers to any AI cl
 
 ### Deliverables
 1. `mcp/server.py` — FastAPI + MCP SDK server
-   - Tool: `simplex.solve` → calls `solve_simplex()`
-   - Tool: `dual_simplex.solve` → calls `solve_dual_simplex()`
+   - Tool: `simplex_solve` → calls `solve_simplex()`
+   - Tool: `dual_simplex_solve` → calls `solve_dual_simplex()`
    - Input: `SimplexProblem` JSON schema
    - Output: `{ status, solution, iterations, objective_value }`
 2. `mcp/tests/test_mcp_server.py` — Verify tools are registered and callable
 3. `mcp/run_mcp_server.py` — CLI entrypoint
 
 ### Success Criteria
-- Claude Desktop can discover `simplex.solve` and `dual_simplex.solve`
+- Claude Desktop can discover `simplex_solve` and `dual_simplex_solve`
 - Tool call returns valid JSON with full iteration trace
 - No auth layer yet — purely public
 
@@ -145,7 +145,7 @@ Complete the vision loop: user signs up, gets key, pays, and uses MCP.
 ### MCP Flow (Claude / Cursor → Python MCP Server)
 ```
 Claude Desktop
-  → calls tool simplex.solve
+  → calls tool simplex_solve
     → Python MCP Server (port 3001)
       → validate_api_key(api_key)
         → POST /internal/validate-key (Express, port 8080)
