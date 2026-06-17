@@ -336,7 +336,7 @@ Example:
 
 ```json
 {
-  "tool": "simplex.solve",
+  "tool": "simplex_solve",
   "input": {
     "objective": "max",
     "objective_coefficients": [3,2],

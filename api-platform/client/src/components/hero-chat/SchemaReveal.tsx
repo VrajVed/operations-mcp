@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 
 const jsonLines = [
   `{`,
-  `  "tool": "simplex.solve",`,
+  `  "tool": "simplex_solve",`,
   `  "input": {`,
   `    "objective": "max",`,
   `    "objective_coefficients": [40, 70, 50],`,
