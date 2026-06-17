@@ -12,10 +12,10 @@ from opsmcp.tools import simplex, dual_simplex, big_m, router
 
 
 _TOOL_MODULES = {
+    router.TOOL_NAME: router,
     simplex.TOOL_NAME: simplex,
     dual_simplex.TOOL_NAME: dual_simplex,
     big_m.TOOL_NAME: big_m,
-    router.TOOL_NAME: router,
 }
 
 

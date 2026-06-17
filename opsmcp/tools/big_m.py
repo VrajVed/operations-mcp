@@ -19,7 +19,12 @@ def get_tool() -> Tool:
     """Return the MCP Tool metadata for big_m_solve."""
     return Tool(
         name=TOOL_NAME,
-        description=f"Solve a linear programming problem using the Big-M simplex method. {EXECUTIVE_PROMPT}",
+        description=(
+            "SPECIALIZED: Big-M simplex method for general LPs with '<=', '>=', '=' "
+            "or mixed constraints. You usually do not need to call this directly; "
+            "use solve_lp and it will route here automatically when needed. "
+            f"{EXECUTIVE_PROMPT}"
+        ),
         inputSchema=SimplexProblem.model_json_schema(),
     )
 

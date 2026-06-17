@@ -16,7 +16,12 @@ def get_tool() -> Tool:
     """Return the MCP Tool metadata for simplex_solve."""
     return Tool(
         name=TOOL_NAME,
-        description=f"Solve a linear programming problem using the primal simplex method. {EXECUTIVE_PROMPT}",
+        description=(
+            "SPECIALIZED: Primal simplex method. Only use directly if the problem is a "
+            "maximization with all '<=' constraints and non-negative RHS. "
+            "For general LPs (>=, =, mixed constraints), use solve_lp instead. "
+            f"{EXECUTIVE_PROMPT}"
+        ),
         inputSchema=SimplexProblem.model_json_schema(),
     )
 

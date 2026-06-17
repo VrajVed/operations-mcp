@@ -16,7 +16,12 @@ def get_tool() -> Tool:
     """Return the MCP Tool metadata for dual_simplex_solve."""
     return Tool(
         name=TOOL_NAME,
-        description=f"Solve a linear programming problem using the dual simplex method. {EXECUTIVE_PROMPT}",
+        description=(
+            "SPECIALIZED: Dual simplex method. Only use directly if the problem is a "
+            "minimization with all '>=' constraints. "
+            "For general LPs (<=, =, mixed constraints), use solve_lp instead. "
+            f"{EXECUTIVE_PROMPT}"
+        ),
         inputSchema=SimplexProblem.model_json_schema(),
     )
 

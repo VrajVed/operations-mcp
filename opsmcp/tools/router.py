@@ -52,9 +52,10 @@ def get_tool() -> Tool:
     return Tool(
         name=TOOL_NAME,
         description=(
-            "Solve any linear programming problem. Automatically routes to the "
-            "best simplex variant (primal, dual, or Big-M) based on the problem "
-            "structure. "
+            "DEFAULT: Use this tool for ANY linear programming problem. "
+            "It automatically inspects the problem and routes to the correct solver "
+            "(primal simplex, dual simplex, or Big-M). "
+            "Only call the specialized solvers directly if you have a specific reason. "
             f"{EXECUTIVE_PROMPT}"
         ),
         inputSchema=SimplexProblem.model_json_schema(),
