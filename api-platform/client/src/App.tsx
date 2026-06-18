@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { SignUp, SignIn, useAuth } from '@clerk/clerk-react'
+import { useAuth } from '@clerk/clerk-react'
 import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
 import Pricing from './pages/Pricing'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
@@ -32,8 +34,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/pricing" element={<Pricing />} />
-            <Route path="/signup" element={<SignUp routing="path" path="/signup" />} />
-            <Route path="/login" element={<SignIn routing="path" path="/login" />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
             <Route 
               path="/dashboard" 
               element={
