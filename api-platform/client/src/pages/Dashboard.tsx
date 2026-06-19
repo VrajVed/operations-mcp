@@ -35,6 +35,7 @@ export default function Dashboard() {
   const [showKey, setShowKey] = useState<Record<string, boolean>>({})
   const [newKeyName, setNewKeyName] = useState('')
   const [loading, setLoading] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
   const [rawKeys, setRawKeys] = useState<Record<string, string>>({})
@@ -58,7 +59,8 @@ export default function Dashboard() {
       setSubscription(subData)
     } catch (err) {
       console.error('Failed to load dashboard data:', err)
-      setError('Failed to load data. Please try again.')
+      const message = err instanceof Error ? err.message : 'Failed to load data. Please try again.'
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -67,7 +69,7 @@ export default function Dashboard() {
   async function createKey() {
     if (!newKeyName.trim()) return
     try {
-      setLoading(true)
+      setCreating(true)
       setError(null)
       setCheckoutUrl(null)
       const token = await getToken()
@@ -82,9 +84,9 @@ export default function Dashboard() {
         name: data.name,
         mask: data.mask,
         status: 'active',
-        isFree: false,
-        dailyCount: 0,
-        dailyLimit: 999999,
+        isFree: data.isFree ?? false,
+        dailyCount: data.dailyCount ?? 0,
+        dailyLimit: data.dailyLimit ?? (data.isFree ? 2 : 999999),
         lastReset: new Date().toISOString(),
         createdAt: data.createdAt,
       }])
@@ -98,7 +100,7 @@ export default function Dashboard() {
         setError(err instanceof Error ? err.message : 'Failed to create key')
       }
     } finally {
-      setLoading(false)
+      setCreating(false)
     }
   }
 
@@ -202,7 +204,7 @@ export default function Dashboard() {
               onChange={(e) => setNewKeyName(e.target.value)}
               className="flex-1"
             />
-            <Button variant="primary" size="sm" onClick={createKey} disabled={loading}>
+            <Button variant="primary" size="sm" onClick={createKey} disabled={creating}>
               <Key size={14} />
               Create Key
             </Button>

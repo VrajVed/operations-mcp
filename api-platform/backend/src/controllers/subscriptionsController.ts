@@ -4,7 +4,7 @@ import {
   verifyWebhookPayload,
   processSubscriptionEvent,
 } from '../services/razorpayService.js';
-import { getAllPlans, getUserByClerkId, getSubscriptionByUser } from '../models/index.js';
+import { getAllPlans, getUserByClerkId, getSubscriptionByUser, upgradeFreeKeysToPaid } from '../models/index.js';
 
 export async function listPlans(req: Request, res: Response) {
   try {

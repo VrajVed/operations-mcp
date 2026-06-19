@@ -1,9 +1,7 @@
 import type { Request, Response } from 'express';
-import { generateApiKey } from '../services/apiKeyService.js';
 import {
   createUser,
   getUserByClerkId,
-  createApiKey,
 } from '../models/index.js';
 
 export async function clerkWebhook(req: Request, res: Response) {
@@ -26,11 +24,8 @@ export async function clerkWebhook(req: Request, res: Response) {
 
       await createUser(clerkId, email);
 
-      const { apiKey, hashedAPIKey, mask } = generateApiKey();
-      await createApiKey(clerkId, 'Free Key', hashedAPIKey, mask, true);
-
-      console.log('User and free key created for:', email);
-      res.json({ received: true, userId: clerkId, freeKeyCreated: true });
+      console.log('User created for:', email);
+      res.json({ received: true, userId: clerkId });
     } else {
       res.json({ received: true, type: payload.type });
     }

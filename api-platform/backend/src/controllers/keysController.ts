@@ -24,6 +24,7 @@ export async function createKey(req: Request, res: Response) {
     }
 
     const activeKeyCount = await countActiveKeysByUser(clerkId);
+    console.log(`[createKey] clerkId=${clerkId} activeKeyCount=${activeKeyCount} subscriptionStatus=${(user as { subscription_status: string }).subscription_status}`);
 
     if (activeKeyCount === 0) {
       const { apiKey, hashedAPIKey, mask } = generateApiKey();
@@ -33,6 +34,9 @@ export async function createKey(req: Request, res: Response) {
         name: (key as { name: string }).name,
         key: apiKey,
         mask: (key as { mask: string }).mask,
+        isFree: true,
+        dailyCount: 0,
+        dailyLimit: 2,
         createdAt: new Date().toISOString(),
       });
     }
@@ -53,6 +57,9 @@ export async function createKey(req: Request, res: Response) {
       name: (key as { name: string }).name,
       key: apiKey,
       mask: (key as { mask: string }).mask,
+      isFree: false,
+      dailyCount: 0,
+      dailyLimit: 999999,
       createdAt: new Date().toISOString(),
     });
   } catch (err) {
@@ -65,6 +72,7 @@ export async function listKeys(req: Request, res: Response) {
   try {
     const clerkId = req.auth!.userId;
     const keys = await getApiKeysByUser(clerkId);
+    console.log(`[listKeys] clerkId=${clerkId} returnedKeys=${(keys as any[]).length}`);
     res.json((keys as any[]).map((k: any) => ({
       id: k.id,
       name: k.name,

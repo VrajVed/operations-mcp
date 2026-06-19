@@ -1,19 +1,27 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+const API_BASE = import.meta.env.VITE_API_URL || ''
 
 export async function apiFetch(endpoint: string, token: string, options: RequestInit = {}) {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
+  const url = `${API_BASE}${endpoint}`
+
+  const res = await fetch(url, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
       'X-Timezone': timezone,
       ...options.headers,
     },
+  }).catch((err) => {
+    console.error(`[apiFetch] Network error for ${url}:`, err)
+    throw new Error(`Network error: ${err instanceof Error ? err.message : 'Unknown'}`)
   })
 
   const data = await res.json().catch(() => null)
+
+  console.log(`[apiFetch] ${options.method || 'GET'} ${url} -> ${res.status}`, data)
 
   if (res.status === 402) {
     throw new PaymentRequiredError(data?.error || 'Subscription required', data?.checkoutUrl)

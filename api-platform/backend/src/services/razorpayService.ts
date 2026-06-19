@@ -7,18 +7,28 @@ import {
   updateSubscriptionStatus,
   getSubscriptionByUser,
   updateUserSubscription,
+  upgradeFreeKeysToPaid,
 } from '../models/index.js';
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
+let razorpay: Razorpay | null = null;
+
+function getRazorpay() {
+  if (!razorpay) {
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) {
+      throw new Error('Razorpay keys are not configured');
+    }
+    razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+  }
+  return razorpay;
+}
 
 export async function createRazorpaySubscription(planId: string, clerkId: string) {
   const plan = await getPlanById(planId);
   if (!plan) return { error: 'Invalid plan ID' };
 
-  const razorpaySub = await razorpay.subscriptions.create({
+  const razorpaySub = await getRazorpay().subscriptions.create({
     plan_id: planId,
     total_count: 12,
     customer_notify: true,
@@ -49,11 +59,15 @@ export async function processSubscriptionEvent(event: { event: string; payload: 
       await updateSubscriptionStatus(sub.id, 'active', sub.current_start, sub.current_end);
       if (sub.notes?.userId) {
         await updateUserSubscription(sub.notes.userId, 'active', sub.id);
+        await upgradeFreeKeysToPaid(sub.notes.userId);
       }
       break;
 
     case 'subscription.charged':
       await updateSubscriptionStatus(sub.id, 'active', sub.current_start, sub.current_end);
+      if (sub.notes?.userId) {
+        await upgradeFreeKeysToPaid(sub.notes.userId);
+      }
       break;
 
     case 'subscription.halted':
