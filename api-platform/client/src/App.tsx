@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard'
 import Pricing from './pages/Pricing'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import Playground from './pages/Playground'
+import Docs from './pages/Docs'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
@@ -44,20 +46,15 @@ export default function App() {
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/playground" 
+            <Route
+              path="/playground"
               element={
                 <ProtectedRoute>
-                  <div className="flex items-center justify-center min-h-[70vh]">
-                    <div className="text-center max-w-md mx-auto px-4">
-                      <h1 className="text-4xl md:text-5xl font-bold text-ink font-sans tracking-tight">Playground</h1>
-                      <div className="mt-4 h-px w-16 bg-accent/30 mx-auto" />
-                      <p className="mt-5 text-lg text-ink-muted font-sans">Coming soon</p>
-                    </div>
-                  </div>
+                  <Playground />
                 </ProtectedRoute>
-              } 
+              }
             />
+            <Route path="/docs" element={<Docs />} />
           </Routes>
         </main>
       </div>

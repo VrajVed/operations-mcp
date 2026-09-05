@@ -34,7 +34,6 @@ export default function Dashboard() {
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null)
   const [showKey, setShowKey] = useState<Record<string, boolean>>({})
   const [newKeyName, setNewKeyName] = useState('')
-  const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
@@ -47,7 +46,6 @@ export default function Dashboard() {
 
   async function loadData() {
     try {
-      setLoading(true)
       setError(null)
       const token = await getToken()
       if (!token) throw new Error('Not authenticated')
@@ -61,8 +59,6 @@ export default function Dashboard() {
       console.error('Failed to load dashboard data:', err)
       const message = err instanceof Error ? err.message : 'Failed to load data. Please try again.'
       setError(message)
-    } finally {
-      setLoading(false)
     }
   }
 
