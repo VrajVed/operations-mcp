@@ -186,28 +186,23 @@ Client
 
 ## Current State vs. MVP
 
-| Component | Current | Phase 1 Target |
-|-----------|---------|----------------|
-| `mcp/core/` solvers | ✅ Ready | ✅ Ready |
-| `mcp/models/` schemas | ✅ Ready | ✅ Ready |
-| `mcp/server.py` | ❌ Empty | ✅ MCP server with 2 tools |
-| Express placeholder `/api` | ⚠️ Returns "Hello" | ⚠️ Still placeholder (Phase 2) |
-| Express auth system | ✅ Complete | ✅ Complete |
-| Express rate limiting | ✅ Complete | ✅ Complete |
-| Express billing | ✅ Complete | ✅ Complete |
+All four phases are built and verified end-to-end (real containers, real
+Postgres, real MCP client) — see `context.md` for how each was checked.
 
----
-
-## Build Order
-
-1. **Phase 1**: Build `mcp/server.py` (MCP SDK + FastAPI)
-2. **Phase 1**: Test with Claude / Cursor / OpenCode
-3. **Phase 2**: Add `POST /v1/solve` in Express, proxy to Python
-4. **Phase 2**: Add request logging
-5. **Phase 3**: Add `POST /internal/validate-key` in Express
-6. **Phase 3**: Add API key validation to Python MCP server
-7. **Phase 3**: Test free tier enforcement end-to-end
-8. **Phase 4**: Wire dashboard frontend to existing Express endpoints
+| Component | Current |
+|-----------|---------|
+| `opsmcp/core/` solvers | ✅ Ready |
+| `opsmcp/models/` schemas | ✅ Ready |
+| `opsmcp/server.py` (SSE MCP + REST bridge) | ✅ Built, key-validated |
+| `opsmcp/server_stdio.py` | ✅ Built, key-validated |
+| Express `/api` (legacy) | ⚠️ Kept as a stub for backward compat only |
+| Express `POST /v1/solve` | ✅ Validates key + quota, forwards to opsmcp |
+| Express auth system | ✅ Complete |
+| Express rate limiting | ✅ Complete, shared between MCP and REST paths |
+| Express billing | ✅ Complete |
+| `POST /internal/validate-key` | ✅ Shared-secret guarded, used by opsmcp |
+| Dashboard wired to real endpoints | ✅ Complete |
+| Dockerized (dev + prod compose) | ✅ Complete — see `DEPLOYMENT.md` |
 
 ---
 
@@ -218,8 +213,14 @@ Client
 2. **Usage increment timing**: Should Express increment on validation, or should Python call a separate "commit usage" endpoint after a successful solve?
    - Recommendation: Increment on validation for simplicity. Revisit if overcounting becomes a problem.
 3. **Internal endpoint security**: `POST /internal/validate-key` must be bound to `localhost` only.
-   - Recommendation: Use `127.0.0.1` binding and reject external IPs.
+   - Resolved differently than the original recommendation: backend and opsmcp
+     run as separate containers, so IP-binding to `127.0.0.1` doesn't apply
+     across the compose network. Guarded instead by a shared secret
+     (`X-Internal-Secret`, checked in `middleware/internalAuth.ts`) and by
+     never reverse-proxying `/internal/*` through the public-facing Caddy
+     (see the root `Caddyfile` and `DEPLOYMENT.md`).
 
 ---
 
-*Next step: Build Phase 1 (public MCP server).*
+All four phases described above are built and verified — see `context.md`
+for what was actually checked and how.

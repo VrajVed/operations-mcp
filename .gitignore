@@ -16,3 +16,5 @@ node_modules/
 design-md/
 database.sqlite
 .env
+.env.production
+.env.prod
