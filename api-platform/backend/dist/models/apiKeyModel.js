@@ -56,4 +56,24 @@ export async function countActiveKeysByUser(userId) {
         .where(and(eq(apiKeys.user_id, userId), eq(apiKeys.status, 'active')));
     return result[0].count;
 }
+export async function hasFreeKey(userId) {
+    const result = await db.select({ count: count() })
+        .from(apiKeys)
+        .where(and(eq(apiKeys.user_id, userId), eq(apiKeys.is_free, true)));
+    return result[0].count > 0;
+}
+export async function upgradeFreeKeysToPaid(userId) {
+    const freeKeys = await db.select({ id: apiKeys.id })
+        .from(apiKeys)
+        .where(and(eq(apiKeys.user_id, userId), eq(apiKeys.is_free, true), eq(apiKeys.status, 'active')));
+    for (const key of freeKeys) {
+        await db.update(apiKeys)
+            .set({ is_free: false })
+            .where(eq(apiKeys.id, key.id));
+        await db.update(keyUsage)
+            .set({ daily_limit: 999999 })
+            .where(eq(keyUsage.key_id, key.id));
+    }
+    return { upgraded: freeKeys.length };
+}
 //# sourceMappingURL=apiKeyModel.js.map

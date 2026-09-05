@@ -1,1 +1,1 @@
-{"version":3,"file":"webhooksController.d.ts","sourceRoot":"","sources":["../../src/controllers/webhooksController.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAQjD,wBAAsB,YAAY,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,2DAgC7D"}
+{"version":3,"file":"webhooksController.d.ts","sourceRoot":"","sources":["../../src/controllers/webhooksController.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAOjD,wBAAsB,YAAY,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,2DA0D7D"}

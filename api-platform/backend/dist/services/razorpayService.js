@@ -1,16 +1,23 @@
 import Razorpay from 'razorpay';
-// @ts-ignore
-import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils';
-import { getPlanById, createSubscription, updateSubscriptionStatus, updateUserSubscription, } from '../models/index.js';
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils.js';
+import { getPlanById, createSubscription, updateSubscriptionStatus, updateUserSubscription, upgradeFreeKeysToPaid, } from '../models/index.js';
+let razorpay = null;
+function getRazorpay() {
+    if (!razorpay) {
+        const keyId = process.env.RAZORPAY_KEY_ID;
+        const keySecret = process.env.RAZORPAY_KEY_SECRET;
+        if (!keyId || !keySecret) {
+            throw new Error('Razorpay keys are not configured');
+        }
+        razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+    }
+    return razorpay;
+}
 export async function createRazorpaySubscription(planId, clerkId) {
     const plan = await getPlanById(planId);
     if (!plan)
         return { error: 'Invalid plan ID' };
-    const razorpaySub = await razorpay.subscriptions.create({
+    const razorpaySub = await getRazorpay().subscriptions.create({
         plan_id: planId,
         total_count: 12,
         customer_notify: true,
@@ -28,7 +35,7 @@ export function verifyWebhookPayload(payload, signature) {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
     if (!signature || !secret)
         return false;
-    return validateWebhookSignature(payload, signature, secret);
+    return validateWebhookSignature(payload.toString('utf8'), signature, secret);
 }
 export async function processSubscriptionEvent(event) {
     const sub = event.payload.subscription.entity;
@@ -37,10 +44,14 @@ export async function processSubscriptionEvent(event) {
             await updateSubscriptionStatus(sub.id, 'active', sub.current_start, sub.current_end);
             if (sub.notes?.userId) {
                 await updateUserSubscription(sub.notes.userId, 'active', sub.id);
+                await upgradeFreeKeysToPaid(sub.notes.userId);
             }
             break;
         case 'subscription.charged':
             await updateSubscriptionStatus(sub.id, 'active', sub.current_start, sub.current_end);
+            if (sub.notes?.userId) {
+                await upgradeFreeKeysToPaid(sub.notes.userId);
+            }
             break;
         case 'subscription.halted':
             await updateSubscriptionStatus(sub.id, 'halted', sub.current_start, sub.current_end);

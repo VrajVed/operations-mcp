@@ -9,7 +9,7 @@ export declare function createRazorpaySubscription(planId: string, clerkId: stri
     status: "active" | "created" | "authenticated" | "pending" | "halted" | "cancelled" | "completed" | "expired";
     error?: undefined;
 }>;
-export declare function verifyWebhookPayload(payload: Buffer, signature: string): any;
+export declare function verifyWebhookPayload(payload: Buffer, signature: string): boolean;
 export declare function processSubscriptionEvent(event: {
     event: string;
     payload: {

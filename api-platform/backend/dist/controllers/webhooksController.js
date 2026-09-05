@@ -1,8 +1,34 @@
-import { generateApiKey } from '../services/apiKeyService.js';
-import { createUser, getUserByClerkId, createApiKey, } from '../models/index.js';
+import { Webhook } from 'svix';
+import { createUser, getUserByClerkId, } from '../models/index.js';
 export async function clerkWebhook(req, res) {
+    const secret = process.env.CLERK_WEBHOOK_SECRET;
+    if (!secret) {
+        console.error('CLERK_WEBHOOK_SECRET is not configured; rejecting webhook');
+        return res.status(500).json({ error: 'Webhook not configured' });
+    }
+    const svixId = req.headers['svix-id'];
+    const svixTimestamp = req.headers['svix-timestamp'];
+    const svixSignature = req.headers['svix-signature'];
+    if (!svixId || !svixTimestamp || !svixSignature) {
+        return res.status(400).json({ error: 'Missing svix headers' });
+    }
+    // req.body is the raw Buffer here — express.raw() is mounted on /v1/webhooks
+    // in index.ts specifically so the signature can be verified against the exact
+    // bytes Clerk signed, before any JSON parsing.
+    let payload;
     try {
-        const payload = JSON.parse(req.body);
+        const wh = new Webhook(secret);
+        payload = wh.verify(req.body, {
+            'svix-id': svixId,
+            'svix-timestamp': svixTimestamp,
+            'svix-signature': svixSignature,
+        });
+    }
+    catch (err) {
+        console.error('Clerk webhook signature verification failed:', err);
+        return res.status(400).json({ error: 'Invalid webhook signature' });
+    }
+    try {
         console.log('Clerk webhook received:', payload.type);
         if (payload.type === 'user.created') {
             const clerkId = payload.data.id;
@@ -15,10 +41,8 @@ export async function clerkWebhook(req, res) {
                 return res.json({ received: true, userId: clerkId, note: 'User already exists' });
             }
             await createUser(clerkId, email);
-            const { apiKey, hashedAPIKey, mask } = generateApiKey();
-            await createApiKey(clerkId, 'Free Key', hashedAPIKey, mask, true);
-            console.log('User and free key created for:', email);
-            res.json({ received: true, userId: clerkId, freeKeyCreated: true });
+            console.log('User created for:', email);
+            res.json({ received: true, userId: clerkId });
         }
         else {
             res.json({ received: true, type: payload.type });

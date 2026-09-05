@@ -12,6 +12,7 @@ export async function createKey(req, res) {
             return res.status(404).json({ error: 'User not found' });
         }
         const activeKeyCount = await countActiveKeysByUser(clerkId);
+        console.log(`[createKey] clerkId=${clerkId} activeKeyCount=${activeKeyCount} subscriptionStatus=${user.subscription_status}`);
         if (activeKeyCount === 0) {
             const { apiKey, hashedAPIKey, mask } = generateApiKey();
             const key = await createApiKey(clerkId, name, hashedAPIKey, mask, true);
@@ -20,6 +21,9 @@ export async function createKey(req, res) {
                 name: key.name,
                 key: apiKey,
                 mask: key.mask,
+                isFree: true,
+                dailyCount: 0,
+                dailyLimit: 2,
                 createdAt: new Date().toISOString(),
             });
         }
@@ -38,6 +42,9 @@ export async function createKey(req, res) {
             name: key.name,
             key: apiKey,
             mask: key.mask,
+            isFree: false,
+            dailyCount: 0,
+            dailyLimit: 999999,
             createdAt: new Date().toISOString(),
         });
     }
@@ -50,6 +57,7 @@ export async function listKeys(req, res) {
     try {
         const clerkId = req.auth.userId;
         const keys = await getApiKeysByUser(clerkId);
+        console.log(`[listKeys] clerkId=${clerkId} returnedKeys=${keys.length}`);
         res.json(keys.map((k) => ({
             id: k.id,
             name: k.name,

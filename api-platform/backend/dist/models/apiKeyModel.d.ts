@@ -32,4 +32,8 @@ export declare function revokeApiKey(keyId: string, userId: string): Promise<{
     revoked: boolean;
 }>;
 export declare function countActiveKeysByUser(userId: string): Promise<number>;
+export declare function hasFreeKey(userId: string): Promise<boolean>;
+export declare function upgradeFreeKeysToPaid(userId: string): Promise<{
+    upgraded: number;
+}>;
 //# sourceMappingURL=apiKeyModel.d.ts.map

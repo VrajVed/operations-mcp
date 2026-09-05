@@ -1,11 +1,9 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { clerkMiddleware } from '@clerk/express';
 import { seedPlans } from './config/database.js';
 import routes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
-dotenv.config();
 const app = express();
 app.use(cors({
     origin: true,
@@ -15,14 +13,14 @@ app.use(cors({
     preflightContinue: false,
     optionsSuccessStatus: 204,
 }));
-// Explicitly handle OPTIONS preflight for all routes
-app.options('*', cors());
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
     next();
 });
-seedPlans();
-app.use(clerkMiddleware());
+seedPlans().catch((err) => {
+    console.error('Database seeding failed. Check DATABASE_URL in your .env file.');
+    process.exit(1);
+});
 app.use('/v1/webhooks', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(routes);
