@@ -14,3 +14,6 @@ uvicorn==0.49.0
 
 # Web framework for SSE transport
 starlette==1.3.1
+
+# HTTP client used to validate API keys against the Express platform layer
+httpx==0.28.1
