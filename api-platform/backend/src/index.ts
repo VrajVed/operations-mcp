@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { clerkMiddleware } from '@clerk/express';
 import { seedPlans } from './config/database.js';
 import routes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -26,10 +25,6 @@ seedPlans().catch((err) => {
   console.error('Database seeding failed. Check DATABASE_URL in your .env file.');
   process.exit(1);
 });
-
-app.use(clerkMiddleware({
-  debug: true,
-}));
 
 app.use('/v1/webhooks', express.raw({ type: 'application/json' }));
 

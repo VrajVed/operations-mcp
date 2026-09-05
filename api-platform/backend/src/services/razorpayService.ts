@@ -1,6 +1,5 @@
 import Razorpay from 'razorpay';
-// @ts-ignore
-import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils';
+import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils.js';
 import {
   getPlanById,
   createSubscription,
@@ -48,7 +47,7 @@ export async function createRazorpaySubscription(planId: string, clerkId: string
 export function verifyWebhookPayload(payload: Buffer, signature: string) {
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
   if (!signature || !secret) return false;
-  return validateWebhookSignature(payload, signature, secret);
+  return validateWebhookSignature(payload.toString('utf8'), signature, secret);
 }
 
 export async function processSubscriptionEvent(event: { event: string; payload: { subscription: { entity: any } } }) {

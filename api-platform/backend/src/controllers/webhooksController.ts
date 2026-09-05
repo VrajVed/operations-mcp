@@ -1,12 +1,42 @@
 import type { Request, Response } from 'express';
+import { Webhook } from 'svix';
 import {
   createUser,
   getUserByClerkId,
 } from '../models/index.js';
 
 export async function clerkWebhook(req: Request, res: Response) {
+  const secret = process.env.CLERK_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('CLERK_WEBHOOK_SECRET is not configured; rejecting webhook');
+    return res.status(500).json({ error: 'Webhook not configured' });
+  }
+
+  const svixId = req.headers['svix-id'] as string;
+  const svixTimestamp = req.headers['svix-timestamp'] as string;
+  const svixSignature = req.headers['svix-signature'] as string;
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    return res.status(400).json({ error: 'Missing svix headers' });
+  }
+
+  // req.body is the raw Buffer here — express.raw() is mounted on /v1/webhooks
+  // in index.ts specifically so the signature can be verified against the exact
+  // bytes Clerk signed, before any JSON parsing.
+  let payload: any;
   try {
-    const payload = JSON.parse(req.body as unknown as string);
+    const wh = new Webhook(secret);
+    payload = wh.verify(req.body as Buffer, {
+      'svix-id': svixId,
+      'svix-timestamp': svixTimestamp,
+      'svix-signature': svixSignature,
+    });
+  } catch (err) {
+    console.error('Clerk webhook signature verification failed:', err);
+    return res.status(400).json({ error: 'Invalid webhook signature' });
+  }
+
+  try {
     console.log('Clerk webhook received:', payload.type);
 
     if (payload.type === 'user.created') {

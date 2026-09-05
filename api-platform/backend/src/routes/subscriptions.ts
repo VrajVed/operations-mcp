@@ -4,14 +4,14 @@ import {
   listPlans,
   createSubscription,
   getSubscriptionStatus,
-  razorpayWebhook,
 } from '../controllers/subscriptionsController.js';
 
 const router: Router = expressRouter();
 
+// Note: POST /v1/webhooks/razorpay is registered in routes/webhooks.ts, which is
+// mounted ahead of this guarded router so Razorpay is not asked for a Clerk JWT.
 router.get('/plans', listPlans);
 router.post('/subscriptions', createSubscription);
 router.get('/subscriptions/status', getSubscriptionStatus);
-router.post('/webhooks/razorpay', razorpayWebhook);
 
 export default router;

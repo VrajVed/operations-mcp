@@ -19,6 +19,7 @@
     "express": "^5.2.1",
     "postgres": "^3.4.5",
     "razorpay": "^2.9.6",
+    "svix": "^1.99.1",
     "uuid": "^14.0.0"
   },
   "devDependencies": {

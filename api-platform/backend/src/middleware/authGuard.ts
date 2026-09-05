@@ -2,6 +2,14 @@ import type { Request, Response, NextFunction } from 'express';
 import { clerkClient } from '@clerk/express';
 import { getUserByClerkId, createUser } from '../models/userModel.js';
 
+// Origins allowed to present a session token to this API. Must include the
+// deployed frontend's origin in production or Clerk rejects every manual token
+// verification below. Comma-separated via AUTHORIZED_PARTIES; falls back to the
+// local dev origins used by `npm run dev` on both sides.
+const AUTHORIZED_PARTIES = process.env.AUTHORIZED_PARTIES
+  ? process.env.AUTHORIZED_PARTIES.split(',').map((s) => s.trim())
+  : ['http://localhost:5173', 'http://localhost:8080'];
+
 export async function requireUserId(req: Request, res: Response, next: NextFunction) {
   let userId = req.auth?.userId;
   const authHeader = req.headers.authorization;
@@ -15,7 +23,7 @@ export async function requireUserId(req: Request, res: Response, next: NextFunct
         method: req.method,
         headers: new Headers(Object.entries(req.headers).map(([k, v]) => [k, String(v)])),
       }), {
-        authorizedParties: ['http://localhost:5173', 'http://localhost:8080'],
+        authorizedParties: AUTHORIZED_PARTIES,
       });
       if (state.isAuthenticated) {
         const auth = state.toAuth();
