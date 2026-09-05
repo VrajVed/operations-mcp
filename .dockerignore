@@ -1,0 +1,6 @@
+api-platform
+opsmcp/.venv
+opsmcp/__pycache__
+opsmcp/tests
+.git
+node_modules

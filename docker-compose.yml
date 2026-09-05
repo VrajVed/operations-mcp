@@ -1,0 +1,58 @@
+# Local full-stack integration testing — builds the same images used in
+# docker-compose.prod.yml but backs them with a disposable local Postgres
+# instead of Supabase. Never point DATABASE_URL here at the Supabase project.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: operations
+      POSTGRES_PASSWORD: operations
+      POSTGRES_DB: operations
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U operations"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./api-platform
+      dockerfile: backend/Dockerfile
+    environment:
+      PORT: 8080
+      DATABASE_URL: postgresql://operations:operations@postgres:5432/operations
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY:-}
+      CLERK_WEBHOOK_SECRET: ${CLERK_WEBHOOK_SECRET:-}
+      AUTHORIZED_PARTIES: ${AUTHORIZED_PARTIES:-http://localhost:5173,http://localhost:8080}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-}
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-dev-secret-local-only}
+      SOLVER_URL: http://opsmcp:3001
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  opsmcp:
+    build:
+      context: .
+      dockerfile: opsmcp/Dockerfile
+    environment:
+      EXPRESS_INTERNAL_URL: http://backend:8080
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-dev-secret-local-only}
+      OPSMCP_REQUIRE_AUTH: ${OPSMCP_REQUIRE_AUTH:-false}
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

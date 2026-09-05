@@ -1,0 +1,63 @@
+# Production stack for a single small box (EC2/Lightsail). Deliberately has
+# no Postgres service — DATABASE_URL in api-platform/backend/.env.production
+# points at the existing Supabase project (see context.md). Caddy is the only
+# container with published ports; it terminates TLS and reverse-proxies to
+# the others over the internal compose network.
+services:
+  backend:
+    build:
+      context: ./api-platform
+      dockerfile: backend/Dockerfile
+    env_file:
+      - ./api-platform/backend/.env.production
+    environment:
+      SOLVER_URL: http://opsmcp:3001
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  opsmcp:
+    build:
+      context: .
+      dockerfile: opsmcp/Dockerfile
+    environment:
+      EXPRESS_INTERNAL_URL: http://backend:8080
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET}
+      OPSMCP_REQUIRE_AUTH: "true"
+    expose:
+      - "3001"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./api-platform/client
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY}
+    expose:
+      - "80"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - opsmcp
+      - client
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

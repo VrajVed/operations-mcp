@@ -1,0 +1,30 @@
+{$DOMAIN} {
+	encode gzip
+
+	# MCP SSE transport — opsmcp/auth.py validates and meters every call itself.
+	handle /sse* {
+		reverse_proxy opsmcp:3001
+	}
+	handle /messages/* {
+		reverse_proxy opsmcp:3001
+	}
+
+	# Platform API — Express owns auth/quota/billing.
+	handle /v1/* {
+		reverse_proxy backend:8080
+	}
+	handle /api {
+		reverse_proxy backend:8080
+	}
+	handle /health {
+		reverse_proxy backend:8080
+	}
+
+	# Deliberately no /internal/* route: that's the backend<->opsmcp
+	# service-to-service path, reachable only on the compose network, and
+	# must never be exposed to the public internet.
+
+	handle {
+		reverse_proxy client:80
+	}
+}
